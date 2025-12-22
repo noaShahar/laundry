@@ -148,11 +148,11 @@ function checkAnswer(userAnswer) {
         wrongCount++;
         wrongElement.textContent = wrongCount;
 
-        // הסבר למה התשובה שגויה
+        // תשובה פשוטה בלי לחשוף את ההיררכיה
         if (correctAnswer) {
-            feedbackElement.textContent = `❌ טעות! הפריטים קרובים מספיק (${distance} רמות) - אפשר לכבס ביחד`;
+            feedbackElement.textContent = `❌ לא! דווקא כן אפשר ביחד`;
         } else {
-            feedbackElement.textContent = `❌ טעות! הפריטים רחוקים מדי (${distance} רמות) - אי אפשר ביחד`;
+            feedbackElement.textContent = `❌ לא! אי אפשר ביחד`;
         }
         feedbackElement.className = 'feedback wrong';
 
@@ -166,7 +166,7 @@ function checkAnswer(userAnswer) {
     // חסימת כפתורים
     btnYes.disabled = true;
     btnNo.disabled = true;
-    
+
     // מעבר אוטומטי לשאלה הבאה אחרי 1.5 שניות
     setTimeout(() => {
         showQuestion();
