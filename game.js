@@ -44,18 +44,39 @@ const btnNext = document.getElementById('btnNext');
 const doorGlass = document.getElementById('doorGlass');
 const itemsDisplay = document.getElementById('itemsDisplay');
 
-// פונקציה לבחירת שני פריטים רנדומליים
+// פונקציה לבחירת שני פריטים רנדומליים - עם העדפה לקצוות
 function pickRandomItems() {
-    // בחר פריט ראשון
-    const index1 = Math.floor(Math.random() * allItems.length);
-    currentItem1 = allItems[index1];
-
-    // בחר פריט שני שונה מהראשון
-    let index2;
-    do {
-        index2 = Math.floor(Math.random() * allItems.length);
-    } while (index2 === index1);
-    currentItem2 = allItems[index2];
+    const numLevels = laundryLevels.length;
+    
+    // 50% סיכוי לדגום מהקצוות (רמות רחוקות)
+    const sampleFromEdges = Math.random() < 0.5;
+    
+    let level1, level2;
+    
+    if (sampleFromEdges) {
+        // דגימה מהקצוות - בחר רמה מהחצי העליון ורמה מהחצי התחתון
+        const midPoint = Math.floor(numLevels / 2);
+        level1 = Math.floor(Math.random() * midPoint); // 0 עד אמצע
+        level2 = midPoint + Math.floor(Math.random() * (numLevels - midPoint)); // אמצע עד סוף
+    } else {
+        // דגימה רגילה
+        level1 = Math.floor(Math.random() * numLevels);
+        level2 = Math.floor(Math.random() * numLevels);
+    }
+    
+    // בחר פריט רנדומלי מכל רמה
+    const items1 = allItems.filter(item => item.level === level1);
+    const items2 = allItems.filter(item => item.level === level2);
+    
+    currentItem1 = items1[Math.floor(Math.random() * items1.length)];
+    
+    // ודא שהפריט השני שונה מהראשון
+    let possibleItems2 = items2.filter(item => item.name !== currentItem1.name);
+    if (possibleItems2.length === 0) {
+        // אם אין פריטים אחרים באותה רמה, בחר מרמה אחרת
+        possibleItems2 = allItems.filter(item => item.name !== currentItem1.name);
+    }
+    currentItem2 = possibleItems2[Math.floor(Math.random() * possibleItems2.length)];
 
     return {
         item1: currentItem1.name,
