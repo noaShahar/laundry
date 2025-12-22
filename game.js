@@ -178,5 +178,48 @@ function nextQuestion() {
     showQuestion();
 }
 
+// פונקציה לשיתוף תוצאות
+function shareResults() {
+    const total = correctCount + wrongCount;
+    const percentage = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+    
+    const shareText = `🧺 משחק מיון כביסה 🧺
+✓ נכון: ${correctCount}
+✗ שגוי: ${wrongCount}
+🔥 רצף שיא: ${bestStreak}
+📊 אחוז הצלחה: ${percentage}%
+
+בואו לשחק! 👇`;
+    
+    const shareUrl = window.location.href;
+    
+    // נסה להשתמש ב-Web Share API (עובד במובייל)
+    if (navigator.share) {
+        navigator.share({
+            title: 'משחק מיון כביסה',
+            text: shareText,
+            url: shareUrl
+        }).catch(() => {
+            // אם המשתמש ביטל, פשוט תעלם
+        });
+    } else {
+        // פולבק - העתק ללוח
+        const fullText = shareText + '\n' + shareUrl;
+        navigator.clipboard.writeText(fullText).then(() => {
+            // הצג הודעה שהועתק
+            const btn = document.getElementById('btnShare');
+            const originalText = btn.textContent;
+            btn.textContent = '✓ הועתק!';
+            btn.style.background = 'linear-gradient(135deg, #4CAF50, #45a049)';
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '';
+            }, 2000);
+        }).catch(() => {
+            alert(fullText);
+        });
+    }
+}
+
 // התחלת המשחק
 showQuestion();

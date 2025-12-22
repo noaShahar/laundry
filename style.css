@@ -373,6 +373,21 @@ h1 {
     color: #ff9800;
 }
 
+/* Share Button */
+.btn-share {
+    background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+    color: white;
+    margin-top: 15px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.btn-share:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 20px rgba(156, 39, 176, 0.4);
+}
+
 @keyframes newRecord {
     0% {
         transform: scale(1);
