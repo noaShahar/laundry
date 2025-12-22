@@ -44,15 +44,22 @@ const btnNext = document.getElementById('btnNext');
 const doorGlass = document.getElementById('doorGlass');
 const itemsDisplay = document.getElementById('itemsDisplay');
 
+// פונקציה לשליחת אירועים ל-Google Analytics
+function trackEvent(eventName, params = {}) {
+    if (typeof gtag !== 'undefined') {
+        gtag('event', eventName, params);
+    }
+}
+
 // פונקציה לבחירת שני פריטים רנדומליים - עם העדפה לקצוות
 function pickRandomItems() {
     const numLevels = laundryLevels.length;
-    
+
     // 50% סיכוי לדגום מהקצוות (רמות רחוקות)
     const sampleFromEdges = Math.random() < 0.5;
-    
+
     let level1, level2;
-    
+
     if (sampleFromEdges) {
         // דגימה מהקצוות - בחר רמה מהחצי העליון ורמה מהחצי התחתון
         const midPoint = Math.floor(numLevels / 2);
@@ -63,13 +70,13 @@ function pickRandomItems() {
         level1 = Math.floor(Math.random() * numLevels);
         level2 = Math.floor(Math.random() * numLevels);
     }
-    
+
     // בחר פריט רנדומלי מכל רמה
     const items1 = allItems.filter(item => item.level === level1);
     const items2 = allItems.filter(item => item.level === level2);
-    
+
     currentItem1 = items1[Math.floor(Math.random() * items1.length)];
-    
+
     // ודא שהפריט השני שונה מהראשון
     let possibleItems2 = items2.filter(item => item.name !== currentItem1.name);
     if (possibleItems2.length === 0) {
@@ -118,6 +125,10 @@ function updateStreak(isCorrect) {
         if (currentStreak > bestStreak) {
             bestStreak = currentStreak;
             bestStreakElement.textContent = bestStreak;
+            // שליחת אירוע שיא חדש
+            trackEvent('new_best_streak', {
+                streak: bestStreak
+            });
             // אנימציה מיוחדת לשיא חדש
             document.getElementById('bestStreak').classList.add('new-record');
             setTimeout(() => {
@@ -146,6 +157,19 @@ function checkAnswer(userAnswer) {
     const correctAnswer = canWashTogether(currentItem1, currentItem2);
     const isCorrect = userAnswer === correctAnswer;
     const distance = Math.abs(currentItem1.level - currentItem2.level);
+
+    // שליחת אירוע ל-Analytics
+    trackEvent('answer_submitted', {
+        user_answer: userAnswer ? 'yes' : 'no',
+        correct_answer: correctAnswer ? 'yes' : 'no',
+        is_correct: isCorrect,
+        item1: currentItem1.name,
+        item2: currentItem2.name,
+        distance: distance,
+        current_streak: currentStreak,
+        total_correct: correctCount,
+        total_wrong: wrongCount
+    });
 
     // עדכון ניקוד
     if (isCorrect) {
@@ -203,7 +227,16 @@ function nextQuestion() {
 function shareResults() {
     const total = correctCount + wrongCount;
     const percentage = total > 0 ? Math.round((correctCount / total) * 100) : 0;
-    
+
+    // שליחת אירוע שיתוף
+    trackEvent('share_results', {
+        total_answers: total,
+        correct: correctCount,
+        wrong: wrongCount,
+        best_streak: bestStreak,
+        success_rate: percentage
+    });
+
     const shareText = `🧺 משחק מיון כביסה 🧺
 ✓ נכון: ${correctCount}
 ✗ שגוי: ${wrongCount}
@@ -211,9 +244,9 @@ function shareResults() {
 📊 אחוז הצלחה: ${percentage}%
 
 בואו לשחק! 👇`;
-    
+
     const shareUrl = window.location.href;
-    
+
     // נסה להשתמש ב-Web Share API (עובד במובייל)
     if (navigator.share) {
         navigator.share({
